@@ -33,10 +33,6 @@ if [ -e $dir/$output-compressed.pdf ]
 then
   python3 success.py
 fi
-if [ -s $dir/$output-compressed.pdf ]
-then
-  python3 error.py
-fi
 #Success Message
 
 #Remove Temp
