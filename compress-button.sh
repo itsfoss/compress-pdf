@@ -27,6 +27,12 @@ gs -q -dNOPAUSE -dBATCH -dSAFER -dPDFA=2 -dPDFACompatibilityPolicy=1 \
 -sOutputFile=$dir/$output-compressed.pdf $file
 #Compress File
 
+#Success Message
+if [ -e $dir/$output-compressed.pdf ]
+then
+  python3 success.py
+fi
+#Success Message
 
 #Remove Temp
 rm .filename.txt
