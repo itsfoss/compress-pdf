@@ -9,6 +9,9 @@ echo ${file##*/} > .filename.txt #filename
 filename=$(cat .filename.txt) #file
 finalname=${filename%.pdf} #without
 output=$(echo ${finalname##*/}) #extension
+
+dir=$(dirname "${file}")
+echo $dir
 #Output Backend
 
 
@@ -21,12 +24,13 @@ gs -q -dNOPAUSE -dBATCH -dSAFER -dPDFA=2 -dPDFACompatibilityPolicy=1 \
 -dGrayImageResolution=150 -dMonoImageDownsampleType=/Bicubic \
 -dMonoImageResolution=150 -dColorConversionStrategy=/Gray \
 -dProcessColorModel=/DeviceGray \
--sOutputFile=$output-compressed.pdf $file
+-sOutputFile=$dir/$output-compressed.pdf $file
 #Compress File
 
 
 #Remove Temp
 rm .filename.txt
+rm input.txt
 #Remove Temp
 
 #Compress Button
