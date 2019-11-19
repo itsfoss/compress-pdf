@@ -64,7 +64,6 @@ class Root(QMainWindow):
 
     def select_pdf(self):
         self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", "/home/", "Pdf Files (*.pdf)")[0]
-        self.file = os.rename(self.file, self.file.replace(" ", ""))
         self.filepath = open('input.txt', 'w')
         with self.filepath:
             self.button.setText(os.path.basename(self.file))
