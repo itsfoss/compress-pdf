@@ -1,19 +1,37 @@
 #!/bin/bash
 
-#Compress Button
+#Compressing action
 
+#Extract the file path
+file=$(cat input.txt)
 
-#Output Backend
-file=$(cat input.txt) #file path
-echo ${file##*/} > .filename.txt #filename
-filename=$(cat .filename.txt) #file
-finalname=${filename%.pdf} #without
-output=$(echo ${finalname##*/}) #extension
+#Remove path and extension for outut file name
+filename=$(basename "${file}")
 
-dir=$(dirname "${file}")
-echo $dir
-#Output Backend
+#Prepare the output file name
+output_file="$(dirname "${file}")/${filename%.pdf}_compressed.pdf"
 
+#Keep backslashes as ghost script doesn't handle it properly
+file=${file//\\}
+output_file=${output_file//\\}
+
+#script arguments
+for arg in "$@"
+do
+    if [ "$arg" == "-l" ]
+    then
+        gs low level
+    fi
+    if [ "$arg" == "-m" ]
+    then
+    	gs medium level
+    fi
+    if [ "$arg" == "-x" ]
+    then
+    	gs max level
+    then
+done
+#script arguments
 
 #Compress File
 gs -q -dNOPAUSE -dBATCH -dSAFER -dPDFA=2 -dPDFACompatibilityPolicy=1 \
@@ -24,19 +42,14 @@ gs -q -dNOPAUSE -dBATCH -dSAFER -dPDFA=2 -dPDFACompatibilityPolicy=1 \
 -dGrayImageResolution=150 -dMonoImageDownsampleType=/Bicubic \
 -dMonoImageResolution=150 -dColorConversionStrategy=/Gray \
 -dProcessColorModel=/DeviceGray \
--sOutputFile=$dir/$output-compressed.pdf $file
-#Compress File
+-sOutputFile="${output_file}" "${file}"
+#-sOutputFile="${dir}"/output-compressed.pdf "${file}"
 
 #Success Message
-if [ -e $dir/$output-compressed.pdf ]
+if [ $?==0 ]
 then
   python3 success.py
 fi
-#Success Message
 
 #Remove Temp
-rm .filename.txt
 rm input.txt
-#Remove Temp
-
-#Compress Button

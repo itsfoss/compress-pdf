@@ -34,7 +34,7 @@ class Root(QMainWindow):
         self.button.move(200, 250)
 
         self.button2 = QPushButton('Compress', self)
-        self.button2.clicked.connect(self.compress)
+        self.button2.clicked.connect(lambda:self.compress(self.radio1.isChecked()))
         self.button2.move(500, 250)
 
         self.radio1 = QRadioButton('Low Compression', self)
@@ -83,11 +83,18 @@ class Root(QMainWindow):
             self.filepath.write(self.file)
         self.button2.setStyleSheet("background-color: green ")
 
-    def compress(self):
-        print("#")
-        command = subprocess.Popen(['bash', 'compress-button.sh'])
-
+    def compress(self, check):
+        if check:
+            print("l")
+            #command = subprocess.Popen(['bash', 'compress-button.sh', '-l'])
+        if check == self.radio2.isChecked():
+            print("x")
+            #command = subprocess.Popen(['bash', 'compress-button.sh', '-x'])
+        if  check == self.radio3.isChecked():
+            print("m")
+            #command = subprocess.Popen(['bash', 'compress-button.sh', '-m'])
 
 App = QApplication(sys.argv)
 root = Root()
 sys.exit(App.exec())
+#100 Lines of FOSS code
