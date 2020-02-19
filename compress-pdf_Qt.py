@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5.QtWidgets import QInputDialog, QFileDialog
-from PyQt5.QtWidgets import QPushButton, QAction, QLineEdit, QMessageBox, QLabel
+from PyQt5.QtWidgets import QPushButton, QRadioButton, QAction, QLineEdit, QMessageBox, QLabel
 
 
 class Root(QMainWindow):
@@ -36,6 +36,19 @@ class Root(QMainWindow):
         self.button2 = QPushButton('Compress', self)
         self.button2.clicked.connect(self.compress)
         self.button2.move(500, 250)
+
+        self.radio1 = QRadioButton('Low Compression', self)
+        self.radio1.move(330, 180)
+        self.radio1.resize(200, 20)
+        self.radio1.setChecked(True)
+
+        self.radio2 = QRadioButton('Medium Compression', self)
+        self.radio2.move(330, 210)
+        self.radio2.resize(200, 20)
+
+        self.radio3 = QRadioButton('Max Compression', self)
+        self.radio3.move(330, 240)
+        self.radio3.resize(200, 20)
 
         self.image = QLabel(self)
         self.image.setPixmap(QtGui.QPixmap("pdff.png"))
@@ -69,7 +82,6 @@ class Root(QMainWindow):
             self.button.setText(os.path.basename(self.file))
             self.filepath.write(self.file)
         self.button2.setStyleSheet("background-color: green ")
-
 
     def compress(self):
         print("#")
