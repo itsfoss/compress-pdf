@@ -3,32 +3,49 @@
 #Compressing action
 
 #Extract the file path
-file=$(cat input.txt)
+#file=$(cat input.txt)
 
 #Remove path and extension for outut file name
-filename=$(basename "${file}")
+#filename=$(basename "${file}")
 
 #Prepare the output file name
-output_file="$(dirname "${file}")/${filename%.pdf}_compressed.pdf"
+#output_file="$(dirname "${file}")/${filename%.pdf}_compressed.pdf"
 
 #Keep backslashes as ghost script doesn't handle it properly
-file=${file//\\}
-output_file=${output_file//\\}
+#file=${file//\\}
+#output_file=${output_file//\\}
 
-#File Size
-#Under Construction
-#File Size
+#script arguments
+for arg in "$@"
+do
+    if [ "$arg" == "-l" ]
+    then
+        #gs low level
+        echo low
+    fi
+    if [ "$arg" == "-m" ]
+    then
+    	#gs medium level
+    	echo medium
+    fi
+    if [ "$arg" == "-x" ]
+    then
+    	#gs max level
+    	echo max
+    fi
+done
+#script arguments
 
 #Compress File
-gs -q -dNOPAUSE -dBATCH -dSAFER -dPDFA=2 -dPDFACompatibilityPolicy=1 \
--dSimulateOverprint=true -sDEVICE=pdfwrite -dCompatibilityLevel=1.6 \
--dPDFSETTINGS=/prepress -dEmbedAllFonts=true -dSubsetFonts=true \
--dAutoRotatePages=/None -dColorImageDownsampleType=/Bicubic \
--dColorImageResolution=150 -dGrayImageDownsampleType=/Bicubic \
--dGrayImageResolution=150 -dMonoImageDownsampleType=/Bicubic \
--dMonoImageResolution=150 -dColorConversionStrategy=/Gray \
--dProcessColorModel=/DeviceGray \
--sOutputFile="${output_file}" "${file}"
+#gs -q -dNOPAUSE -dBATCH -dSAFER -dPDFA=2 -dPDFACompatibilityPolicy=1 \
+#-dSimulateOverprint=true -sDEVICE=pdfwrite -dCompatibilityLevel=1.6 \
+#-dPDFSETTINGS=/prepress -dEmbedAllFonts=true -dSubsetFonts=true \
+#-dAutoRotatePages=/None -dColorImageDownsampleType=/Bicubic \
+#-dColorImageResolution=150 -dGrayImageDownsampleType=/Bicubic \
+#-dGrayImageResolution=150 -dMonoImageDownsampleType=/Bicubic \
+#-dMonoImageResolution=150 -dColorConversionStrategy=/Gray \
+#-dProcessColorModel=/DeviceGray \
+#-sOutputFile="${output_file}" "${file}"
 #-sOutputFile="${dir}"/output-compressed.pdf "${file}"
 
 #Success Message
