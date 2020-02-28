@@ -48,7 +48,7 @@ class Root(QMainWindow):
         self.radio2.move(330, 210)
         self.radio2.resize(200, 20)
 
-        self.radio3 = QRadioButton('Max Compression', self)
+        self.radio3 = QRadioButton('High Compression', self)
         self.radio3.move(330, 240)
         self.radio3.resize(200, 20)
 
@@ -100,4 +100,3 @@ class Root(QMainWindow):
 App = QApplication(sys.argv)
 root = Root()
 sys.exit(App.exec())
-#100+ Lines of FOSS code
