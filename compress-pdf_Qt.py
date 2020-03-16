@@ -79,23 +79,17 @@ class Root(QMainWindow):
 
     def select_pdf(self):
         self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", "/home/", "Pdf Files (*.pdf)")[0]
-        self.filepath = open('input.txt', 'w')
-        with self.filepath:
-            self.button.setText(os.path.basename(self.file))
-            self.filepath.write(self.file)
+        self.button.setText(os.path.basename(self.file))
         self.button2.setStyleSheet("background-color: green ")
         self.button2.setEnabled(True)
 
     def compress(self, check):
         if check:
-            print("/n")
-            command = subprocess.Popen(['bash', 'compress-button.sh', '-l'])
+            subprocess.call(['bash', 'compress-button.sh', '-l', self.file])
         if check == self.radio2.isChecked():
-            print("/n")
-            command = subprocess.Popen(['bash', 'compress-button.sh', '-x'])
+            subprocess.call(['bash', 'compress-button.sh', '-x', self.file])
         if  check == self.radio3.isChecked():
-            print("/n")
-            command = subprocess.Popen(['bash', 'compress-button.sh', '-m'])
+            subprocess.call(['bash', 'compress-button.sh', '-m', self.file])
 
 App = QApplication(sys.argv)
 root = Root()

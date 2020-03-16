@@ -30,9 +30,15 @@ class Success(QMainWindow):
         self.setGeometry(self.top, self.left, self.width, self.height)
 
         self.label = QLabel(self)
-        self.label.setText("Your file has been compressed")
+        self.label.setText("Your file has been compressed.")
         self.label.move(50, 50)
         self.label.resize(400, 20)
+
+        self.label2 = QLabel(self)
+        self.label2.setText("It coexists with your input file.")
+        self.label2.move(50, 70)
+        self.label2.resize(400, 20)
+
 
         self.show()
 
