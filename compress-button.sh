@@ -3,7 +3,7 @@
 #Compressing action
 
 #Extract the file path
-file=$(cat input.txt)
+file=$2
 
 #Remove path and extension for outut file name
 filename=$(basename "${file}")
@@ -19,22 +19,16 @@ output_file=${output_file//\\}
 level=prepress
 
 #script arguments
-for arg in "$@"
-do
-    if [ "$arg" == "-l" ]
-    then
-        level=prepress
-    fi
-    if [ "$arg" == "-m" ]
-    then
-        level=ebook
-    fi
-    if [ "$arg" == "-x" ]
-    then
-        level=screen
-    fi
-done
-#script arguments
+if [ "$1" == "-l" ]
+   then
+       level=prepress
+elif [ "$1" == "-m" ]
+   then
+       level=ebook
+elif [ "$1" == "-x" ]
+   then
+       level=screen
+fi
 
 #Compress File
 
@@ -47,6 +41,3 @@ if [ $?==0 ]
 then
   python3 success.py
 fi
-
-#Remove Temp
-rm input.txt
