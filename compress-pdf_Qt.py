@@ -80,8 +80,13 @@ class Root(QMainWindow):
     def select_pdf(self):
         self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", "/home/", "Pdf Files (*.pdf)")[0]
         self.button.setText(os.path.basename(self.file))
-        self.button2.setStyleSheet("background-color: green ")
-        self.button2.setEnabled(True)
+        if self.button.text() == '':
+            self.button.setText("Select File")
+            self.button2.setEnabled(False)
+            self.button2.setStyleSheet("background-color: #808080; ")
+        else:
+            self.button2.setStyleSheet("background-color: green ")
+            self.button2.setEnabled(True)
 
     def compress(self, check):
         if check:
