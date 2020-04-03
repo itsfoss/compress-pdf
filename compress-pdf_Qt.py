@@ -1,6 +1,9 @@
 import os
+from os.path import basename
 import sys
 import subprocess
+import PyQt5
+import time
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap, QColor
@@ -35,6 +38,7 @@ class Root(QMainWindow):
 
         self.button2 = QPushButton('Compress', self)
         self.button2.clicked.connect(lambda:self.compress(self.radio1.isChecked()))
+        self.button2.clicked.connect(self.exists)
         self.button2.move(500, 250)
         self.button2.setEnabled(False)
         self.button2.setStyleSheet("background-color: #808080; ")
@@ -95,6 +99,17 @@ class Root(QMainWindow):
             subprocess.call(['bash', 'compress-button.sh', '-x', self.file])
         if  check == self.radio3.isChecked():
             subprocess.call(['bash', 'compress-button.sh', '-m', self.file])
+
+    def exists(self):
+        self.answer = subprocess.call(['bash', 'out.sh'])
+        if self.answer == 0:
+            self.msg = QMessageBox()
+            self.msg.setText("Your file has been compressed.")
+            self.msg.show()
+        else:
+            self.msg = QMessageBox()
+            self.msg.setText("Something went Wrong")
+            self.msg.show()
 
 App = QApplication(sys.argv)
 root = Root()
