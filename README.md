@@ -1,4 +1,4 @@
-# compress-pdf
+# PDF Compressor
 
 A simple GUI tool that allows you to compress PDF files
 
@@ -8,4 +8,14 @@ While you can easily install and use ghostcript in command line to compress PDFs
 
 This is why we are creating this small GUI tool that allows you to compress PDF files on Linux in a few clicks.
 
-This is our first desktp application for Linux and we have a lot to learn here. So please feel free to help us with your expertise.
+This is our first desktp application for Linux and we have a lot to learn here. So please feel free to help us with your expertise by contributing to the project.
+
+## How to use PDF Compressor GUI tool on Linux
+
+Download the AppImage from the releases.
+
+Make the file executable and double click to run it.
+
+The interface is really simple. You select the PDF file, choose the compression level and hit compress.
+
+Your original files is not touched. The compressed files append -compressed to the original file name and they are stored in the same location as your original PDF files.
