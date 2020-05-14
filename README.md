@@ -18,4 +18,4 @@ Make the file executable and double click to run it.
 
 The interface is really simple. You select the PDF file, choose the compression level and hit compress.
 
-Your original files is not touched. The compressed files append -compressed to the original file name and they are stored in the same location as your original PDF files.
+Your original PDF files are not touched. The compressed files append -compressed to the original file name and they are stored in the same location as your original PDF files.
