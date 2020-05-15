@@ -1,3 +1,6 @@
+#! /usr/bin/env python3
+
+import logging
 import os
 import signal
 import subprocess
@@ -5,24 +8,27 @@ import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication
-from PyQt5.QtWidgets import QInputDialog, QFileDialog, QDialog
+from PyQt5.QtWidgets import QInputDialog, QFileDialog, QDialog, QButtonGroup
 from PyQt5.QtWidgets import QPushButton, QRadioButton, QAction, QLineEdit, QMessageBox, QLabel
+
+logging.basicConfig(level=logging.ERROR, format="%(message)s")
+logger = logging.getLogger(__name__)
+
+levels = {1: "prepress", 2:"screen", 3:"ebook"}
 
 class Root(QMainWindow):
 
     def __init__(self):
-
         super().__init__()
+        self.init_window()
 
+    def init_window(self):
         self.setFixedSize(800, 500)
         self.title = "PDF-Compressor is an Open Source Project by IT'S FOSS"
         self.top = 100
         self.left = 100
         self.width = 800
         self.height = 500
-        self.InitWindow()
-
-    def InitWindow(self):
 
         self.setWindowIcon(QtGui.QIcon("its.png"))
         self.setWindowTitle(self.title)
@@ -33,7 +39,7 @@ class Root(QMainWindow):
         self.button.move(200, 250)
 
         self.button2 = QPushButton('Compress', self)
-        self.button2.clicked.connect(lambda:self.compress(self.radio1.isChecked()))
+        self.button2.clicked.connect(lambda:self.compress(self.groupButton.checkedId()))
         self.button2.move(500, 250)
         self.button2.setEnabled(False)
         self.button2.setStyleSheet("background-color: #808080; ")
@@ -50,6 +56,11 @@ class Root(QMainWindow):
         self.radio3 = QRadioButton('High Compression', self)
         self.radio3.move(330, 240)
         self.radio3.resize(200, 20)
+
+        self.groupButton = QButtonGroup()
+        self.groupButton.addButton(self.radio1, 1)
+        self.groupButton.addButton(self.radio2, 2)
+        self.groupButton.addButton(self.radio3, 3)
 
         self.image = QLabel(self)
         self.image.setPixmap(QtGui.QPixmap("pdff.png"))
@@ -83,20 +94,9 @@ class Root(QMainWindow):
         self.button2.setEnabled(True)
 
     def compress(self, check):
-        filename = os.path.split(self.file)[-1]
-        output_file = self.file.replace(filename, filename.split(".")[0] + "-compressed.pdf")        
-
-        if check:
-            level = "prepress"
-        if check == self.radio2.isChecked():
-            level = "screen"
-        if  check == self.radio3.isChecked():
-            level = "ebook"
-        command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{level}",
-                   "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{output_file}"', f'"{self.file}"']
-        
+        logger.info("Starting compress method")
         try:
-            subprocess.run(command, check=True)
+            compress(self.file, check)
         except subprocess.CalledProcessError as e:
             self.error_dialog()
         else:
@@ -119,11 +119,24 @@ class Root(QMainWindow):
         message_dialog.setText("Your file has been compressed.\nIt coexists with your input file.")
         message_dialog.setStandardButtons(QMessageBox.Ok)
         message_dialog.exec_()
-        
 
+
+def compress(file, check):
+    '''Method that runs the actual compression'''
+    logger.info("Running compress ghostscript function")
+    filename = os.path.split(file)[-1]
+    output_file = file.replace(filename, filename.split(".")[0] + "-compressed.pdf")
+    level = levels[check]
+    command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{level}",
+                "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{output_file}"', f'"{file}"']
+    logger.info("Compress command complete")
+    subprocess.run(command, check=True)
+
+def main():
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    app = QApplication(sys.argv)
+    root = Root()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-    App = QApplication(sys.argv)
-    root = Root()
-    sys.exit(App.exec())
+    main()
