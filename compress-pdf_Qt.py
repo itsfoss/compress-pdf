@@ -1,13 +1,12 @@
 import os
-import sys
+import signal
 import subprocess
+import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QMainWindow, QApplication
-from PyQt5.QtWidgets import QInputDialog, QFileDialog
+from PyQt5.QtWidgets import QInputDialog, QFileDialog, QDialog
 from PyQt5.QtWidgets import QPushButton, QRadioButton, QAction, QLineEdit, QMessageBox, QLabel
-
 
 class Root(QMainWindow):
 
@@ -84,13 +83,47 @@ class Root(QMainWindow):
         self.button2.setEnabled(True)
 
     def compress(self, check):
-        if check:
-            subprocess.call(['bash', 'compress-button.sh', '-l', self.file])
-        if check == self.radio2.isChecked():
-            subprocess.call(['bash', 'compress-button.sh', '-x', self.file])
-        if  check == self.radio3.isChecked():
-            subprocess.call(['bash', 'compress-button.sh', '-m', self.file])
+        filename = os.path.split(self.file)[-1]
+        output_file = self.file.replace(filename, filename.split(".")[0] + "-compressed.pdf")        
 
-App = QApplication(sys.argv)
-root = Root()
-sys.exit(App.exec())
+        if check:
+            level = "prepress"
+        if check == self.radio2.isChecked():
+            level = "screen"
+        if  check == self.radio3.isChecked():
+            level = "ebook"
+        command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{level}",
+                   "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{output_file}"', f'"{self.file}"']
+        
+        try:
+            subprocess.run(command, check=True)
+        except subprocess.CalledProcessError as e:
+            self.error_dialog()
+        else:
+            # Subprocess should fail if an error occurred.
+            # If we end up here we can pull up the success page
+            self.success_dialog()
+
+    def error_dialog(self):
+        message_dialog = QMessageBox()
+        message_dialog.setIconPixmap(QtGui.QPixmap("its.png"))
+        message_dialog.setWindowTitle("Error")
+        message_dialog.setText("Something went wrong!")
+        message_dialog.setStandardButtons(QMessageBox.Ok)
+        message_dialog.exec_()
+
+    def success_dialog(self):
+        message_dialog = QMessageBox()
+        message_dialog.setIconPixmap(QtGui.QPixmap("its.png"))
+        message_dialog.setWindowTitle("Success")
+        message_dialog.setText("Your file has been compressed.\nIt coexists with your input file.")
+        message_dialog.setStandardButtons(QMessageBox.Ok)
+        message_dialog.exec_()
+        
+
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    App = QApplication(sys.argv)
+    root = Root()
+    sys.exit(App.exec())
