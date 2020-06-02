@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5.QtWidgets import QInputDialog, QFileDialog, QDialog, QButtonGroup
 from PyQt5.QtWidgets import QPushButton, QRadioButton, QAction, QLineEdit, QMessageBox, QLabel
@@ -85,13 +86,65 @@ class Root(QMainWindow):
         self.label.move(250, 400)
         self.label.resize(400, 20)
 
+        self.label1 = QLabel(self)
+        self.label1.setText("")
+        self.label1.setStyleSheet("color: green; ")
+        self.label1.move(320, 350)
+        self.label1.resize(400, 20)
+
+        self.label2 = QLabel(self)
+        self.label2.setText("")
+        self.label2.setStyleSheet("color: red; ")
+        self.label2.move(320, 350)
+        self.label2.resize(400, 20)
+
+        self.label3 = QLabel(self)
+        self.label3.setText("")
+        self.label3.setStyleSheet("color: green; ")
+        self.label3.move(320, 350)
+        self.label3.resize(400, 40)
+
+        self.label4 = QLabel(self)
+        self.label4.setText("")
+        self.label4.setStyleSheet("color: red; ")
+        self.label4.move(320, 350)
+        self.label4.resize(400, 40)
+
+        self.font = QFont("Arial", 8)
+        self.font.setBold(True)
+
         self.show()
 
     def select_pdf(self):
         self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", "/home/", "Pdf Files (*.pdf)")[0]
         self.button.setText(os.path.basename(self.file))
+        self.button.setFont(self.font)
+        self.label1.setText("Your file is ready to be compressed.")
         self.button2.setStyleSheet("background-color: green ")
         self.button2.setEnabled(True)
+        if self.button.text() == '':
+            self.label2.setText("PDF file has not been selected")
+            self.label1.setText("")
+            self.label3.setText("")
+            self.label4.setText("")
+            self.button2.setStyleSheet("background-color: red ")
+            self.button2.setEnabled(False)
+            self.button.setText("Select File")
+        try:
+            if self.file != '':
+                if(os.path.splitext(self.file) == "pdf"):
+                    self.label2.setStyleSheet("color: green; ")
+                    self.label1.setText("Your file is ready to be compressed.")
+                    self.label2.setText("")
+                    self.label3.setText("")
+                    self.label4.setText("")
+                    self.button2.setStyleSheet("background-color: green ")
+                else:
+                    self.label2.setText("")
+                    self.label3.setText("")
+                    self.label4.setText("")
+        except AttributeError:
+                self.label2.setText("PDF file has not been selected.")
 
     def compress(self, check):
         logger.info("Starting compress method")
@@ -105,20 +158,16 @@ class Root(QMainWindow):
             self.success_dialog()
 
     def error_dialog(self):
-        message_dialog = QMessageBox()
-        message_dialog.setIconPixmap(QtGui.QPixmap("its.png"))
-        message_dialog.setWindowTitle("Error")
-        message_dialog.setText("Something went wrong!")
-        message_dialog.setStandardButtons(QMessageBox.Ok)
-        message_dialog.exec_()
+        self.label4.setText("Something went wrong!")
+        self.label1.setText("")
+        self.label2.setText("")
+        self.label3.setText("")
 
     def success_dialog(self):
-        message_dialog = QMessageBox()
-        message_dialog.setIconPixmap(QtGui.QPixmap("its.png"))
-        message_dialog.setWindowTitle("Success")
-        message_dialog.setText("Your file has been compressed.\nIt coexists with your input file.")
-        message_dialog.setStandardButtons(QMessageBox.Ok)
-        message_dialog.exec_()
+        self.label3.setText("Your file has been compressed.\nIt coexists with your input file.")
+        self.label1.setText("")
+        self.label2.setText("")
+        self.label4.setText("")
 
 
 def compress(file, check):
