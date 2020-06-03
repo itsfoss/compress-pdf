@@ -150,24 +150,25 @@ class Root(QMainWindow):
         logger.info("Starting compress method")
         try:
             compress(self.file, check)
-        except subprocess.CalledProcessError as e:
-            self.error_dialog()
+        except FileNotFoundError:
+            self.dialog(1, "Please install ghostscript")
+        except Exception as e:
+            self.dialog(1, str(e))
         else:
             # Subprocess should fail if an error occurred.
             # If we end up here we can pull up the success page
-            self.success_dialog()
+            self.dialog(0, "Your file has been compressed.\nIt coexists with your input file.")
 
-    def error_dialog(self):
-        self.label4.setText("Something went wrong!")
+    def dialog(self, state, msg):
         self.label1.setText("")
         self.label2.setText("")
-        self.label3.setText("")
+        if state == 0:
+            self.label3.setText(msg)
+            self.label4.setText("")
+        else:
+            self.label4.setText(msg)
+            self.label3.setText("")
 
-    def success_dialog(self):
-        self.label3.setText("Your file has been compressed.\nIt coexists with your input file.")
-        self.label1.setText("")
-        self.label2.setText("")
-        self.label4.setText("")
 
 
 def compress(file, check):
