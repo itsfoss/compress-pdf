@@ -147,9 +147,12 @@ class Root(QMainWindow):
                 self.label2.setText("PDF file has not been selected.")
 
     def compress(self, check):
-        content = ""
         logger.info("Starting compress method")
-        out = compress(self.file, check)
+        self.filename = os.path.split(self.file)[-1]
+        self.output_file = self.file.replace(self.filename, self.filename.split('.')[0] + "-compressed.pdf")
+        command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{levels[check]}",
+                "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{self.output_file}"', f'"{self.file}"']
+        out = subprocess.run(command, capture_output=True)
         try:
             out.check_returncode()
         except FileNotFoundError:
@@ -174,18 +177,6 @@ class Root(QMainWindow):
         e.setWindowTitle(title.rstrip())
         e.setText(msg.rstrip())
         e.exec_()
-
-
-def compress(file, check):
-    '''Method that runs the actual compression'''
-    logger.info("Running compress ghostscript function")
-    filename = os.path.split(file)[-1]
-    output_file = file.replace(filename, filename.split(".")[0] + "-compressed.pdf")
-    level = levels[check]
-    command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{level}",
-                "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{output_file}"', f'"{file}"']
-    logger.info("Compress command complete")
-    return subprocess.run(command, capture_output=True)
 
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
