@@ -147,28 +147,33 @@ class Root(QMainWindow):
                 self.label2.setText("PDF file has not been selected.")
 
     def compress(self, check):
+        content = ""
         logger.info("Starting compress method")
+        out = compress(self.file, check)
         try:
-            compress(self.file, check)
+            out.check_returncode()
         except FileNotFoundError:
-            self.dialog(1, "Please install ghostscript")
+            self.error(out.stderr.decode("utf-8"), "Please install ghostscript")
+        except subprocess.CalledProcessError:
+            self.error(out.stderr.decode("utf-8"), out.stdout.decode("utf-8"))
         except Exception as e:
-            self.dialog(1, str(e))
+            self.error("error!", str(e))
         else:
             # Subprocess should fail if an error occurred.
             # If we end up here we can pull up the success page
-            self.dialog(0, "Your file has been compressed.\nIt coexists with your input file.")
+            self.success("Your file has been compressed.\nIt coexists with your input file.")
 
-    def dialog(self, state, msg):
+    def success(self, msg):
         self.label1.setText("")
         self.label2.setText("")
-        if state == 0:
-            self.label3.setText(msg)
-            self.label4.setText("")
-        else:
-            self.label4.setText(msg)
-            self.label3.setText("")
-
+        self.label3.setText(msg)
+        self.label4.setText("")
+    
+    def error(self, title, msg):
+        e = QMessageBox()
+        e.setWindowTitle(title.rstrip())
+        e.setText(msg.rstrip())
+        e.exec_()
 
 
 def compress(file, check):
@@ -180,7 +185,7 @@ def compress(file, check):
     command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{level}",
                 "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{output_file}"', f'"{file}"']
     logger.info("Compress command complete")
-    subprocess.run(command, check=True)
+    return subprocess.run(command, capture_output=True)
 
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
