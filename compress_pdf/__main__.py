@@ -116,7 +116,7 @@ class Root(QMainWindow):
         self.show()
 
     def select_pdf(self):
-        self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", "/home/", "Pdf Files (*.pdf)")[0]
+        self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", "/home/", "Pdf Files (*.pdf);; All Files (*.*)")[0]
         self.button.setText(os.path.basename(self.file))
         self.button.setFont(self.font)
         self.label1.setText("Your file is ready to be compressed.")
