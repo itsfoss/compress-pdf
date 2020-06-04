@@ -5,6 +5,9 @@ import os
 import signal
 import subprocess
 import sys
+from re import search
+import tempfile
+import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
@@ -17,11 +20,74 @@ logger = logging.getLogger(__name__)
 
 levels = {1: "prepress", 2:"screen", 3:"ebook"}
 
+class Config:
+    def __init__(self):
+        self.cdir = os.environ["HOME"] + "/.config/compress-pdf"
+        self.file = os.environ["HOME"] + "/.config/compress-pdf/config"
+        self.file_exists = False
+        self.lastdirstat = False
+        self.outputfile = None
+        self.lastdir = None
+        if not os.path.isdir(self.cdir):
+            os.mkdir(self.cdir, 0o755)
+        if os.path.isfile(self.file):
+            self.file_exists = True
+            
+    def getOutFileOpt(self):
+        if self.file_exists:
+            with open(self.file, 'r') as f:
+                for line in f:
+                    val = search("^OutputFilename +(auto|manual)", line)
+                    if val != None:
+                        self.outputfile = val.group(1).rstrip()
+        return self.outputfile
+        
+    def getLastDirStat(self):
+        if self.file_exists:
+            with open(self.file, 'r') as f:
+                for line in f:
+                    val = search("^RememberLastDir +(true|false)", line)
+                    if val != None:
+                        if val.group(1).rstrip() == "true":
+                            self.lastdirstat = True
+        return self.lastdirstat
+        
+    def getLastDir(self):
+        if self.file_exists:
+            with open(self.file, 'r') as f:
+                for line in f:
+                    val = search("^LastDir +(.+) *\n*$", line)
+                    if val != None:
+                        self.lastdir = val.group(1).rstrip()
+        return self.lastdir
+        
+    def setLastDir(self, dir):
+        if self.lastdir == None:
+            if self.getLastDir() == None:
+                with open(self.file, 'a')  as f:
+                    f.write(f"LastDir {dir}")
+                    return 0
+        _f = None
+        with open(self.file, 'r') as f:
+            _f = tempfile.NamedTemporaryFile(delete=False)
+            for line in f:
+                val = search("^LastDir +", line)
+                if val != None:
+                    _f.file.write(f"LastDir {dir}\n".encode("utf-8"))
+                    continue
+                _f.file.write(line.encode("utf-8"))
+        _f.close()
+        shutil.move(_f.name, self.file)
+        
+
 class Root(QMainWindow):
 
     def __init__(self):
         super().__init__()
         self.init_window()
+        self.conf = Config()
+        self.lastdir = (self.conf.getLastDir() if self.conf.getLastDirStat() else "/home/")
+        self.outputfile = self.conf.getOutFileOpt()
 
     def init_window(self):
         self.setFixedSize(800, 500)
@@ -31,7 +97,7 @@ class Root(QMainWindow):
         self.width = 800
         self.height = 500
 
-        self.setWindowIcon(QtGui.QIcon("its.png"))
+        self.setWindowIcon(QtGui.QIcon("resources/its.png"))
         self.setWindowTitle(self.title)
         self.setGeometry(self.top, self.left, self.width, self.height)
 
@@ -64,19 +130,19 @@ class Root(QMainWindow):
         self.groupButton.addButton(self.radio3, 3)
 
         self.image = QLabel(self)
-        self.image.setPixmap(QtGui.QPixmap("pdff.png"))
+        self.image.setPixmap(QtGui.QPixmap("resources/pdff.png"))
         self.image.resize(100, 100)
         self.image.move(230, 150)
         self.image.show()
 
         self.image2 = QLabel(self)
-        self.image2.setPixmap(QtGui.QPixmap("inboxx.png"))
+        self.image2.setPixmap(QtGui.QPixmap("resources/inboxx.png"))
         self.image2.resize(100, 100)
         self.image2.move(525, 150)
         self.image2.show()
 
         self.image3 = QLabel(self)
-        self.image3.setPixmap(QtGui.QPixmap("its.png"))
+        self.image3.setPixmap(QtGui.QPixmap("resources/its.png"))
         self.image3.resize(50, 50)
         self.image3.move(180, 385)
         self.image3.show()
@@ -116,7 +182,9 @@ class Root(QMainWindow):
         self.show()
 
     def select_pdf(self):
-        self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", "/home/", "Pdf Files (*.pdf);; All Files (*.*)")[0]
+        self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", self.lastdir, "Pdf Files (*.pdf);; All Files (*.*)")[0]
+        self.filename = os.path.split(self.file)
+        self.conf.setLastDir(self.filename[0])
         self.button.setText(os.path.basename(self.file))
         self.button.setFont(self.font)
         self.label1.setText("Your file is ready to be compressed.")
@@ -148,8 +216,10 @@ class Root(QMainWindow):
 
     def compress(self, check):
         logger.info("Starting compress method")
-        self.filename = os.path.split(self.file)[-1]
-        self.output_file = self.file.replace(self.filename, self.filename.split('.')[0] + "-compressed.pdf")
+        if self.outputfile == "manual":
+            self.output_file = QFileDialog.getSaveFileName(self, "Save File", self.filename[0], "Pdf Files (*.pdf);; All Files (*.*)")[0]
+        elif self.ouputfile == "auto":
+            self.output_file = self.file.replace(self.filename[1], self.filename[1].split('.')[0] + "-compressed.pdf")
         command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{levels[check]}",
                 "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{self.output_file}"', f'"{self.file}"']
         out = subprocess.run(command, capture_output=True)
