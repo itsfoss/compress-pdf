@@ -29,8 +29,8 @@ class Config:
         if not os.path.isfile(self.file):
             with open(self.file, 'w') as f:
                 f.write("""RememberLastDir false
-                LastDir /home
-                OutputFilename auto""")
+LastDir /home
+OutputFilename auto""")
         self.outputfilename = self.getOutFileOpt()
         self.lastdirstat = self.getLastDirStat()
         self.lastdir = self.getLastDir()
@@ -139,12 +139,14 @@ class Root(QMainWindow):
         self.toglastdir.setChecked(self.conf.getLastDirStat())
         self.toglastdir.triggered.connect(lambda:self.conf.togLastDirStat())
         self.outoption = QMenu("output filename", self)
-        self.outoption_0 = QAction("auto", self)
-        self.outoption_1 = QAction("manual", self)
+        self.outoption_0 = QAction("auto", self, checkable=True)
+        self.outoption_1 = QAction("manual", self, checkable=True)
+        self.outoption_0.setChecked((True if self.conf.outputfilename == "auto" else False))
+        self.outoption_1.setChecked((True if self.conf.outputfilename == "manual" else False))
         self.outoption.addAction(self.outoption_0)
         self.outoption.addAction(self.outoption_1)
-        self.outoption_0.triggered.connect(lambda:self.conf.setOutFileOpt("auto"))
-        self.outoption_1.triggered.connect(lambda:self.conf.setOutFileOpt("manual"))
+        self.outoption_0.triggered.connect(lambda:self.setupdate("auto"))
+        self.outoption_1.triggered.connect(lambda:self.setupdate("manual"))
         self.settings.addAction(self.toglastdir)
         self.settings.addMenu(self.outoption)
 
@@ -231,6 +233,15 @@ class Root(QMainWindow):
         self.font.setBold(True)
 
         self.show()
+        
+    def setupdate(self, opt):
+        self.conf.setOutFileOpt(opt)
+        if opt == "auto":
+            self.outoption_0.setChecked(True)
+            self.outoption_1.setChecked(False)
+        elif opt == "manual":
+            self.outoption_1.setChecked(True)
+            self.outoption_0.setChecked(False)
 
     def select_pdf(self):
         self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", (self.conf.lastdir if self.conf.lastdirstat else "/home"), "Pdf Files (*.pdf);; All Files (*.*)")[0]
