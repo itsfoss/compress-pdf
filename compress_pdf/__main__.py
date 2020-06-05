@@ -110,8 +110,9 @@ class Config:
         self.outputfilename = val
         
     def setLastDir(self, dir):
-        self.setOpt("LastDir", dir)
-        self.lastdir = dir
+        if dir != "":
+            self.setOpt("LastDir", dir)
+            self.lastdir = dir
         
         
 
@@ -119,8 +120,6 @@ class Root(QMainWindow):
 
     def __init__(self):
         self.conf = Config()
-        #self.conf.togLastDirStat()
-        #sys.exit(1)
         self.outputfile = self.conf.outputfilename
         super().__init__()
         self.init_window()
@@ -280,7 +279,7 @@ class Root(QMainWindow):
         except FileNotFoundError:
             self.error(out.stderr.decode("utf-8"), "Please install ghostscript")
         except subprocess.CalledProcessError:
-            self.error(out.stderr.decode("utf-8"), out.stdout.decode("utf-8"))
+            self.error("Ghostscript runtime error!", out.stderr.decode("utf-8") + '\n' + out.stdout.decode("utf-8"))
         except Exception as e:
             self.error("error!", str(e))
         else:
