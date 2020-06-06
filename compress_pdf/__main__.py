@@ -145,8 +145,9 @@ class Root(QMainWindow):
         self.outoption_1.setChecked((True if self.conf.outputfilename == "manual" else False))
         self.outoption.addAction(self.outoption_0)
         self.outoption.addAction(self.outoption_1)
-        self.outoption_0.triggered.connect(lambda:self.setupdate("auto"))
-        self.outoption_1.triggered.connect(lambda:self.setupdate("manual"))
+        self.outoption_0.triggered.connect(lambda:self.conf.setOutFileOpt("auto") or self.outoption_0.setChecked(True) or  self.outoption_1.setChecked(False))
+        self.outoption_1.triggered.connect(lambda:self.conf.setOutFileOpt("manual") or self.outoption_0.setChecked(False) or  self.outoption_1.setChecked(True))
+
         self.settings.addAction(self.toglastdir)
         self.settings.addMenu(self.outoption)
 
@@ -233,15 +234,6 @@ class Root(QMainWindow):
         self.font.setBold(True)
 
         self.show()
-        
-    def setupdate(self, opt):
-        self.conf.setOutFileOpt(opt)
-        if opt == "auto":
-            self.outoption_0.setChecked(True)
-            self.outoption_1.setChecked(False)
-        elif opt == "manual":
-            self.outoption_1.setChecked(True)
-            self.outoption_0.setChecked(False)
 
     def select_pdf(self):
         self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", (self.conf.lastdir if self.conf.lastdirstat else "/home"), "Pdf Files (*.pdf);; All Files (*.*)")[0]
