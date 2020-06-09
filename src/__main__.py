@@ -9,118 +9,27 @@ from re import search
 import tempfile
 import shutil
 
+from CompressPDF.Config import State
+
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QMovie
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMenu
 from PyQt5.QtWidgets import QInputDialog, QFileDialog, QDialog, QButtonGroup
 from PyQt5.QtWidgets import QPushButton, QRadioButton, QAction, QLineEdit, QMessageBox, QLabel
+from PyQt5.QtWidgets import QWidget
 
 logging.basicConfig(level=logging.ERROR, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 levels = {1: "prepress", 2:"screen", 3:"ebook"}
 
-class Config:
-    def __init__(self):
-        self.cdir = os.environ["HOME"] + "/.config/compress-pdf"
-        self.file = self.cdir + "/config"
-        if not os.path.isdir(self.cdir):
-            os.mkdir(self.cdir, 0o755)
-        if not os.path.isfile(self.file):
-            with open(self.file, 'w') as f:
-                f.write("""RememberLastDir false
-LastDir /home
-OutputFilename auto""")
-        self.outputfilename = self.getOutFileOpt()
-        self.lastdirstat = self.getLastDirStat()
-        self.lastdir = self.getLastDir()
-       
-    def getOpt(self, option):
-        if option == "OutputFilename":
-            option = '^' + option + " +(auto|manual) *\\n{0,1}"
-        elif option == "RememberLastDir":
-            option = '^' + option + " +(true|false) *\\n{0,1}"
-        elif option == "LastDir":
-            option = '^' + option + " +(.+) *\\n{0,1}"
-        with open(self.file, 'r') as f:
-            for line in f:
-                val = search(option, line)
-                if val != None:
-                    return val.group(1).rstrip()
-        return None
-        
-    def getOutFileOpt(self):
-        tmp = self.getOpt("OutputFilename")
-        if tmp == None:
-            return "auto"
-        return tmp
-        
-        
-    def getLastDirStat(self):
-        tmp = self.getOpt("RememberLastDir")
-        if tmp == "true":
-            return True
-        else:
-            return False
-        
-    def getLastDir(self):
-        tmp = self.getOpt("LastDir")
-        if tmp == None:
-            return "/home"
-        return tmp
-        
-    def setOpt(self, option, value):
-        tmp = self.getOpt(option)
-        if tmp == None:
-            with open(self.file, 'a') as f:
-                f.write(f"{option} {value}\n")
-                return None
-        if tmp == value:
-            return None
-        if option == "OutputFilename":
-            option = '(^' + option + " +)(auto|manual) *\\n{0,1}"
-        elif option == "RememberLastDir":
-            option = '(^' + option + " +)(true|false) *\\n{0,1}"
-        elif option == "LastDir":
-            option = '(^' + option + " +)(.+) *\\n{0,1}"
-        _f = None
-        with open(self.file, 'r') as f:
-            _f = tempfile.NamedTemporaryFile(delete=False)
-            for line in f:
-                val = search(option, line)
-                if val != None:
-                    _f.file.write(f"{val.group(1)}{value}\n".encode("utf-8"))
-                    continue
-                _f.file.write(line.encode("utf-8"))
-        _f.close()
-        shutil.move(_f.name, self.file)
-        return None
-    
-    def togLastDirStat(self):
-        tmp = self.getLastDirStat()
-        if tmp:
-            self.setOpt("RememberLastDir", "false")
-            self.lastdirstat = False
-        else:
-            self.setOpt("RememberLastDir", "true")
-            self.lastdirstat = True
-    
-    def setOutFileOpt(self, val):
-        self.setOpt("OutputFilename", val)
-        self.outputfilename = val
-        
-    def setLastDir(self, dir):
-        if dir != "":
-            self.setOpt("LastDir", dir)
-            self.lastdir = dir
-        
-        
-
 class Root(QMainWindow):
 
     def __init__(self):
-        self.conf = Config()
-        self.outputfile = self.conf.outputfilename
+        self.state = State()
+        self.outputfile = self.state.outputfilename
         super().__init__()
         self.init_window()
 
@@ -136,17 +45,17 @@ class Root(QMainWindow):
         self.settings = self.menubar.addMenu("Settings")
         self.help = self.menubar.addMenu("Help")
         self.toglastdir = QAction("remember last directory", self, checkable=True)
-        self.toglastdir.setChecked(self.conf.getLastDirStat())
-        self.toglastdir.triggered.connect(lambda:self.conf.togLastDirStat())
+        self.toglastdir.setChecked(self.state.getLastDirStat())
+        self.toglastdir.triggered.connect(lambda:self.state.togLastDirStat())
         self.outoption = QMenu("output filename", self)
         self.outoption_0 = QAction("auto", self, checkable=True)
         self.outoption_1 = QAction("manual", self, checkable=True)
-        self.outoption_0.setChecked((True if self.conf.outputfilename == "auto" else False))
-        self.outoption_1.setChecked((True if self.conf.outputfilename == "manual" else False))
+        self.outoption_0.setChecked((True if self.state.outputfilename == "auto" else False))
+        self.outoption_1.setChecked((True if self.state.outputfilename == "manual" else False))
         self.outoption.addAction(self.outoption_0)
         self.outoption.addAction(self.outoption_1)
-        self.outoption_0.triggered.connect(lambda:self.conf.setOutFileOpt("auto") or self.outoption_0.setChecked(True) or  self.outoption_1.setChecked(False))
-        self.outoption_1.triggered.connect(lambda:self.conf.setOutFileOpt("manual") or self.outoption_0.setChecked(False) or  self.outoption_1.setChecked(True))
+        self.outoption_0.triggered.connect(lambda:self.state.setOutFileOpt("auto") or self.outoption_0.setChecked(True) or  self.outoption_1.setChecked(False))
+        self.outoption_1.triggered.connect(lambda:self.state.setOutFileOpt("manual") or self.outoption_0.setChecked(False) or  self.outoption_1.setChecked(True))
 
         self.settings.addAction(self.toglastdir)
         self.settings.addMenu(self.outoption)
@@ -162,7 +71,7 @@ class Root(QMainWindow):
         self.button2 = QPushButton('Compress', self)
         self.button2.clicked.connect(lambda:self.compress(self.groupButton.checkedId()))
         self.button2.move(500, 250)
-        self.button2.setEnabled(self.conf.getLastDirStat())
+        self.button2.setEnabled(self.state.getLastDirStat())
         self.button2.setStyleSheet("background-color: #808080; ")
 
         self.radio1 = QRadioButton('Low Compression', self)
@@ -236,9 +145,9 @@ class Root(QMainWindow):
         self.show()
 
     def select_pdf(self):
-        self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", (self.conf.lastdir if self.conf.lastdirstat else "/home"), "Pdf Files (*.pdf);; All Files (*.*)")[0]
+        self.file = QFileDialog.getOpenFileName(self, "Select a Pdf File", (self.state.lastdir if self.state.lastdirstat else "/home"), "Pdf Files (*.pdf);; All Files (*.*)")[0]
         self.filename = os.path.split(self.file)
-        self.conf.setLastDir(self.filename[0])
+        self.state.setLastDir(self.filename[0])
         self.button.setText(os.path.basename(self.file))
         self.button.setFont(self.font)
         self.label1.setText("Your file is ready to be compressed.")
@@ -270,9 +179,9 @@ class Root(QMainWindow):
 
     def compress(self, check):
         logger.info("Starting compress method")
-        if self.conf.outputfilename == "manual":
+        if self.state.outputfilename == "manual":
             self.output_file = QFileDialog.getSaveFileName(self, "Save File", self.filename[0], "Pdf Files (*.pdf);; All Files (*.*)")[0]
-        elif self.conf.outputfilename == "auto":
+        elif self.state.outputfilename == "auto":
             self.output_file = self.file.replace(self.filename[1], self.filename[1].split('.')[0] + "-compressed.pdf")
         command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{levels[check]}",
                 "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{self.output_file}"', f'"{self.file}"']
