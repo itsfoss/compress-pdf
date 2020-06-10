@@ -1,16 +1,17 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="Compress PDF",
-    packages=find_packages(exclude=["tests*"]),
-    package_data={},
+    name="compress-pdf",
+    version="0.1",
+    author="ItsFOSS",
+    author_email="",
+    url="https://www.itsfoss.com",
+    description="A PDF compressor GUI application",
+    packages=["CompressPDF", "Config"],
+    data_files=[("itsfoss/resources/compress-pdf", ["resources/inboxx.png", "resources/its.png", "resources/pdff.png"])],
     entry_points={
-        'console_scripts': [
-            'compress-pdf = compress_pdf:main'
-        ],
-    },
-
-    data_files=[
-        ('lib/python3/dist-packages/compress_pdf', ['its.png', 'inboxx.png', 'pdff.png']),
-    ],
+        "console_scripts": [
+            "compress-pdf = CompressPDF.app:main"
+        ]
+    }
 )

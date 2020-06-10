@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import os, sys, tempfile
+import os, sys, tempfile, shutil
 from re import search
 
 class State:

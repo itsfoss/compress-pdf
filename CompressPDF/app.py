@@ -9,7 +9,7 @@ from re import search
 import tempfile
 import shutil
 
-from CompressPDF.Config import State
+from Config.Conf import State
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont, QMovie
