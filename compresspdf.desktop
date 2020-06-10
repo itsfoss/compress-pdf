@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=0.1
+Name=Compress PDF
+Exec=compress-pdf
+Type=Application
+Terminal=false
+Icon=/usr/share/itsfoss/resources/compress-pdf/pdff.png
+Categories=Utility
