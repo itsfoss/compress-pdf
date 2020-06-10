@@ -34,6 +34,7 @@ class Root(QMainWindow):
         self.init_window()
 
     def init_window(self):
+        RESOURCES=os.environ["HOME"] + "/.local/itsfoss/resources/compress-pdf/"
         self.setFixedSize(800, 500)
         self.title = "PDF-Compressor is an Open Source Project by IT'S FOSS"
         self.top = 100
@@ -60,7 +61,7 @@ class Root(QMainWindow):
         self.settings.addAction(self.toglastdir)
         self.settings.addMenu(self.outoption)
 
-        self.setWindowIcon(QtGui.QIcon("resources/its.png"))
+        self.setWindowIcon(QtGui.QIcon(RESOURCES + "its.png"))
         self.setWindowTitle(self.title)
         self.setGeometry(self.top, self.left, self.width, self.height)
 
@@ -93,19 +94,19 @@ class Root(QMainWindow):
         self.groupButton.addButton(self.radio3, 3)
 
         self.image = QLabel(self)
-        self.image.setPixmap(QtGui.QPixmap("resources/pdff.png"))
+        self.image.setPixmap(QtGui.QPixmap(RESOURCES + "pdff.png"))
         self.image.resize(100, 100)
         self.image.move(230, 150)
         self.image.show()
 
         self.image2 = QLabel(self)
-        self.image2.setPixmap(QtGui.QPixmap("resources/inboxx.png"))
+        self.image2.setPixmap(QtGui.QPixmap(RESOURCES + "inboxx.png"))
         self.image2.resize(100, 100)
         self.image2.move(525, 150)
         self.image2.show()
 
         self.image3 = QLabel(self)
-        self.image3.setPixmap(QtGui.QPixmap("resources/its.png"))
+        self.image3.setPixmap(QtGui.QPixmap(RESOURCES + "its.png"))
         self.image3.resize(50, 50)
         self.image3.move(180, 385)
         self.image3.show()
