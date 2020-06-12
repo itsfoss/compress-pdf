@@ -25,14 +25,30 @@ logger = logging.getLogger(__name__)
 
 levels = {1: "prepress", 2:"screen", 3:"ebook"}
 
+class Waiting(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.movie = QMovie("resources/waiting.gif")
+        self.label = QLabel(self)
+        self.label.setMovie(self.movie)
+        self.setWindowTitle("Please wait!")
+    
+    def startt(self):
+        self.movie.start()
+        self.show()
+
+    def stopp(self):
+        self.movie.stop()
+        self.close()
+
 class Root(QMainWindow):
 
     def __init__(self):
         self.state = State()
         self.outputfile = self.state.outputfilename
+        self.waiting = Waiting()
         super().__init__()
         self.init_window()
-
     def init_window(self):
         self.setFixedSize(800, 500)
         self.title = "PDF-Compressor is an Open Source Project by IT'S FOSS"
@@ -185,7 +201,9 @@ class Root(QMainWindow):
             self.output_file = self.file.replace(self.filename[1], self.filename[1].split('.')[0] + "-compressed.pdf")
         command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4", f"-dPDFSETTINGS=/{levels[check]}",
                 "-dNOPAUSE", "-dQUIET", "-dBATCH", f'-sOutputFile="{self.output_file}"', f'"{self.file}"']
+        self.waiting.startt()
         out = subprocess.run(command, capture_output=True)
+        self.waiting.stopp()
         try:
             out.check_returncode()
         except FileNotFoundError:
