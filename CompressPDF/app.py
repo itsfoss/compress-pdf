@@ -32,6 +32,9 @@ class Waiting(QWidget):
         self.label = QLabel(self)
         self.label.setMovie(self.movie)
         self.setWindowTitle("Please wait!")
+        self.setWindowIcon("resources/itss.png")
+        self.setFixedSize(200, 200)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.CustomizeWindowHint)
     
     def startt(self):
         self.movie.start()
