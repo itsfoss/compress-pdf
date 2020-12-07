@@ -8,9 +8,10 @@ import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QMainWindow, QApplication
-from PyQt5.QtWidgets import QInputDialog, QFileDialog, QDialog, QButtonGroup
-from PyQt5.QtWidgets import QPushButton, QRadioButton, QAction, QLineEdit, QMessageBox, QLabel
+from PyQt5.QtWidgets import (QAction, QApplication, QButtonGroup, QDialog,
+                             QFileDialog, QInputDialog, QLabel, QLineEdit,
+                             QMainWindow, QMessageBox, QPushButton,
+                             QRadioButton)
 
 logging.basicConfig(level=logging.ERROR, format="%(message)s")
 logger = logging.getLogger(__name__)
