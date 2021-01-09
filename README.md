@@ -1,3 +1,5 @@
+***This is the older version of this application. This code base is no longer maintained.***
+
 # PDF Compressor
 
 A simple GUI tool that allows you to compress PDF files
