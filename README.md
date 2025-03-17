@@ -1,4 +1,4 @@
-# Compress PDF v1.0
+# Compress PDF v2.0
 
 **Compress PDF** is a simple and efficient tool designed to reduce the size of PDF files without compromising quality. This version features a sleek and modern UI built using **Qt6**, making the compression process more user-friendly.  
 
