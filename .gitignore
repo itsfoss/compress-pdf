@@ -44,3 +44,35 @@ stage/
 
 # Source archive packed by `snapcraft cleanbuild` before pushing to the LXD container
 /*_source.tar.bz2
+
+### Testing ###
+# pytest cache
+.pytest_cache/
+
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+.coverage.*
+
+# Test results
+test-results/
+junit.xml
+
+### IDE ###
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# Vim
+*.swp
+*.swo
+
+### Virtual environments ###
+.venv/
+.env
+
+### Claude Code ###
+.claude/
