@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f6f5f4"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f66151"/>
+      <stop offset="1" stop-color="#e01b24"/>
+    </linearGradient>
+    <path id="page-shape" d="M 32 30 H 84 L 102 48 V 94 A 6 6 0 0 1 96 100 H 32 A 6 6 0 0 1 26 94 V 36 A 6 6 0 0 1 32 30 Z"/>
+    <path id="arrow-down" d="M 58 6 H 70 V 16 H 86 L 64 32 L 42 16 H 58 Z"/>
+    <path id="arrow-up" d="M 58 120 H 70 V 110 H 86 L 64 94 L 42 110 H 58 Z"/>
+  </defs>
+
+  <!-- top arrow, behind the page -->
+  <use href="#arrow-down" y="4" fill="#a51d2d" stroke="#a51d2d" stroke-width="4" stroke-linejoin="round"/>
+  <use href="#arrow-down" fill="url(#arrow)" stroke="url(#arrow)" stroke-width="4" stroke-linejoin="round"/>
+
+  <!-- page -->
+  <use href="#page-shape" y="4" fill="#c0bfbc"/>
+  <use href="#page-shape" fill="url(#page)"/>
+  <path d="M 84 30 V 42 A 6 6 0 0 0 90 48 H 102 Z" fill="#deddda"/>
+  <g fill="#c0bfbc">
+    <rect x="38" y="48" width="36" height="4" rx="2"/>
+    <rect x="38" y="58" width="52" height="4" rx="2"/>
+    <rect x="38" y="68" width="52" height="4" rx="2"/>
+    <rect x="38" y="78" width="30" height="4" rx="2"/>
+  </g>
+
+  <!-- bottom arrow, in front of the page -->
+  <use href="#arrow-up" y="4" fill="#a51d2d" stroke="#a51d2d" stroke-width="4" stroke-linejoin="round"/>
+  <use href="#arrow-up" fill="url(#arrow)" stroke="url(#arrow)" stroke-width="4" stroke-linejoin="round"/>
+</svg>

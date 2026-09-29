@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.itsfoss.CompressPDF</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>Compress PDF</name>
+  <summary>Make PDF files smaller</summary>
+  <description>
+    <p>
+      Shrink PDF files so they fit the upload limits of job portals, government
+      websites and email. Drop in one or more files, pick how small you need
+      them, and choose where to save.
+    </p>
+    <ul>
+      <li>Four simple compression levels</li>
+      <li>Compress several files at once</li>
+      <li>Never makes a file bigger or overwrites your original</li>
+      <li>Works offline, your files never leave your computer</li>
+    </ul>
+  </description>
+
+  <developer id="com.itsfoss">
+    <name>It's FOSS</name>
+  </developer>
+
+  <launchable type="desktop-id">com.itsfoss.CompressPDF.desktop</launchable>
+  <translation type="gettext">compress-pdf</translation>
+  <content_rating type="oars-1.1"/>
+
+  <url type="homepage">https://itsfoss.com/</url>
+  <url type="bugtracker">https://github.com/itsfoss/compress-pdf/issues</url>
+  <url type="vcs-browser">https://github.com/itsfoss/compress-pdf</url>
+
+  <provides>
+    <binary>compress-pdf</binary>
+    <mediatype>application/pdf</mediatype>
+  </provides>
+
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </supports>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#ffbe6f</color>
+    <color type="primary" scheme_preference="dark">#613583</color>
+  </branding>
+
+  <releases>
+    <release version="3.0.0" date="2026-10-15" type="development">
+      <description>
+        <p>A complete rewrite with a new interface, multiple file support and reliable packaging.</p>
+      </description>
+    </release>
+  </releases>
+</component>

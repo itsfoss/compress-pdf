@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="compress-pdf">
+  <schema id="com.itsfoss.CompressPDF" path="/com/itsfoss/CompressPDF/">
+    <key name="window-width" type="i">
+      <default>560</default>
+      <summary>Window width</summary>
+    </key>
+    <key name="window-height" type="i">
+      <default>620</default>
+      <summary>Window height</summary>
+    </key>
+    <key name="window-maximized" type="b">
+      <default>false</default>
+      <summary>Window maximized</summary>
+    </key>
+    <key name="level" type="s">
+      <choices>
+        <choice value="high"/>
+        <choice value="balanced"/>
+        <choice value="small"/>
+        <choice value="smallest"/>
+      </choices>
+      <default>"balanced"</default>
+      <summary>Last used compression level</summary>
+    </key>
+  </schema>
+</schemalist>

@@ -1,0 +1,37 @@
+#!@PYTHON@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright 2026 It's FOSS
+
+import gettext
+import locale
+import os
+import signal
+import sys
+
+VERSION = '@VERSION@'
+APPLICATION_ID = '@APPLICATION_ID@'
+pkgdatadir = '@pkgdatadir@'
+localedir = '@localedir@'
+
+sys.path.insert(1, pkgdatadir)
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+try:
+    locale.bindtextdomain('compress-pdf', localedir)
+    locale.textdomain('compress-pdf')
+except AttributeError:
+    pass  # not available on every libc
+gettext.install('compress-pdf', localedir)
+
+if __name__ == '__main__':
+    import gi
+
+    gi.require_version('Gtk', '4.0')
+    gi.require_version('Adw', '1')
+    from gi.repository import Gio
+
+    resource = Gio.Resource.load(os.path.join(pkgdatadir, 'compress-pdf.gresource'))
+    resource._register()
+
+    from compress_pdf import main
+    sys.exit(main.main(VERSION, APPLICATION_ID))

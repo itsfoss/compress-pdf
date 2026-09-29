@@ -1,46 +1,18 @@
-
-### Python ###
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
 
-# C extensions
-*.so
+# Meson and Flatpak build output
+/build/
+/_build/
+/builddir/
+/.flatpak-builder/
+/repo/
+*.flatpak
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-env/
-venv/
-
-### Snapcraft ###
-
-parts/
-prime/
-stage/
-*.snap
-
-# Snapcraft global state tracking data(automatically generated)
-# https://forum.snapcraft.io/t/location-to-save-global-state/768
-/snap/.snapcraft/
-
-# Source archive packed by `snapcraft cleanbuild` before pushing to the LXD container
-/*_source.tar.bz2
+# Debian build output
+/debian/.debhelper/
+/debian/compress-pdf/
+/debian/files
+/debian/*.substvars
+/debian/*.log
+/debian/debhelper-build-stamp

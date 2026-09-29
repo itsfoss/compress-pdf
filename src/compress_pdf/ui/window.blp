@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+using Gtk 4.0;
+using Adw 1;
+
+template $CompressPdfWindow: Adw.ApplicationWindow {
+  title: _("Compress PDF");
+  width-request: 360;
+  height-request: 400;
+
+  content: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      [end]
+      MenuButton {
+        primary: true;
+        icon-name: "open-menu-symbolic";
+        tooltip-text: _("Main Menu");
+        menu-model: primary_menu;
+      }
+    }
+
+    content: Adw.ToastOverlay toast_overlay {
+      child: Adw.StatusPage empty_page {
+        icon-name: "com.itsfoss.CompressPDF";
+        title: _("Compress PDF");
+        description: _("Drop PDF files here to make them smaller");
+
+        child: Button select_button {
+          label: _("_Select Files…");
+          use-underline: true;
+          halign: center;
+
+          styles [
+            "pill",
+            "suggested-action",
+          ]
+        };
+      };
+    };
+  };
+}
+
+menu primary_menu {
+  section {
+    item {
+      label: _("_About Compress PDF");
+      action: "app.about";
+    }
+  }
+}
