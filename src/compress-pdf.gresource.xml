@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/com/itsfoss/CompressPDF">
-    <file preprocess="xml-stripblanks">compress_pdf/ui/window.ui</file>
+    <file preprocess="xml-stripblanks" alias="compress_pdf/ui/window.ui">window.ui</file>
+    <file alias="style.css">compress_pdf/style.css</file>
   </gresource>
 </gresources>

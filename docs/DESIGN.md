@@ -144,6 +144,24 @@ Safety rules found while testing Ghostscript 10.06:
   Ghostscript.
 - `%` in the output name is a page-number template; it is escaped.
 
+### Ubuntu's AppArmor profile for Ghostscript (native `.deb` only)
+
+Ubuntu 25.10+ ships `/etc/apparmor.d/gs` in enforce mode. The Flatpak is not
+affected (its gs lives in `/app/bin`). Two consequences, both handled:
+
+- **No process may signal gs**, not even its parent: `kill` returns EACCES,
+  so `Gio.Subprocess.force_exit()` silently does nothing. Cancel therefore
+  also closes our end of gs's stdout; gs dies of SIGPIPE when it reports its
+  next page (measured 0.36 s instead of 17 s on a 47-page file).
+- **gs may only open `*.pdf` (and a few other extensions) under `$HOME`,
+  `/tmp`, `/mnt` and `/media`.** Files on network shares
+  (`/run/user/UID/gvfs/…`), in `/dev/shm`, or without a `.pdf` extension fail
+  with `undefinedfilename`. When that happens and the app itself can read the
+  file, it copies it into its cache folder and retries once.
+
+Both are covered by tests (`test_cancel_is_prompt`,
+`test_reads_files_gs_is_not_allowed_to`).
+
 Progress comes from Ghostscript's own output: it prints
 `Processing pages 1 through N.` then `Page n` for each page. No extra pass is
 needed to count pages.
@@ -164,6 +182,7 @@ compress-pdf/
 │   ├── window.py        window states, drag and drop, file dialogs
 │   ├── file_row.py      one row per file (status, progress, result)
 │   ├── compressor.py    builds gs args, runs Gio.Subprocess, parses progress
+│   ├── batch.py         runs files one by one, saves results without overwriting
 │   ├── levels.py        level table above
 │   ├── errors.py        gs output → user message
 │   └── ui/*.blp         Blueprint UI definitions

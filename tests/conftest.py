@@ -9,6 +9,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 builtins.__dict__.setdefault('_', lambda s: s)
+builtins.__dict__.setdefault('ngettext', lambda s, p, n: s if n == 1 else p)
 
 GS = shutil.which('gs')
 needs_gs = pytest.mark.skipif(GS is None, reason='Ghostscript not installed')
@@ -67,8 +68,18 @@ def samples(tmp_path_factory):
     # %d would be expanded by Ghostscript, a leading dash looks like an option.
     odd = d / '-Résumé 100% %d (final).pdf'
     shutil.copy(image, odd)
+    # 30 pages; each copy is shifted so duplicate-image detection can't skip work.
+    long = str(d / 'long.pdf')
+    subprocess.run(
+        [GS, '-q', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-sDEVICE=pdfwrite',
+         '-dAutoFilterColorImages=false', '-dColorImageFilter=/FlateEncode',
+         '-dDownsampleColorImages=false', '-dDetectDuplicateImages=false',
+         f'-sOutputFile={long}', *[image] * 10],
+        check=True,
+    )
     return {
         'image': image,
+        'long': long,
         'text': _gs(TEXT_PS, str(d / 'text.pdf')),
         'locked': _gs(TEXT_PS, str(d / 'locked.pdf'),
                       '-sOwnerPassword=owner', '-sUserPassword=secret', '-dEncryptionR=3', '-dKeyLength=128'),

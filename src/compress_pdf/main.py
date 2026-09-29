@@ -5,6 +5,7 @@ import sys
 
 from gi.repository import Adw, Gio, GLib
 
+from .compressor import clean_workdir
 from .window import CompressPdfWindow
 
 MIN_ADW = (1, 5)
@@ -23,6 +24,10 @@ class CompressPdfApplication(Adw.Application):
         self.create_action('about', self.on_about)
         self.create_action('quit', lambda *args: self.quit(), ['<primary>q'])
         self.set_accels_for_action('window.close', ['<primary>w'])
+
+    def do_startup(self):
+        Adw.Application.do_startup(self)
+        clean_workdir()
 
     def do_activate(self):
         self.get_window().present()

@@ -181,6 +181,7 @@ class CompressionJob:
         self._on_progress = None
         self._on_finished = None
         self._finished = False
+        self._staged = None
 
     def start(self, on_progress, on_finished):
         self._on_progress = on_progress
@@ -200,17 +201,22 @@ class CompressionJob:
         except OSError as e:
             return self._fail_later(ErrorKind.WRITE_FAILED, str(e))
         self.output = os.path.join(self.workdir, f'{uuid.uuid4().hex}.pdf')
+        self._spawn(self.source)
 
+    def _spawn(self, input_path):
         launcher = Gio.SubprocessLauncher.new(
             Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_MERGE
         )
         launcher.setenv('LC_ALL', 'C', True)
         try:
-            self._process = launcher.spawnv(build_args(self.gs, self.source, self.output, self.level))
+            self._process = launcher.spawnv(build_args(self.gs, input_path, self.output, self.level))
         except GLib.Error as e:
             return self._fail_later(ErrorKind.GS_MISSING, e.message)
 
         self._stream = self._process.get_stdout_pipe()
+        self._pending = b''
+        self._progress = ProgressParser()
+        self._tail.clear()
         self._read_next_chunk()
 
     def cancel(self):
@@ -218,6 +224,9 @@ class CompressionJob:
             return
         self._cancellable.cancel()
         if self._process:
+            # Where AppArmor confines gs (Ubuntu 25.10+) this is refused, so
+            # _on_chunk also closes the pipe: gs then dies of SIGPIPE when it
+            # reports its next page.
             self._process.force_exit()
 
     # Read raw chunks rather than lines: PyGObject's byte line reader returns
@@ -236,7 +245,10 @@ class CompressionJob:
             # Cancelled, or the pipe broke; the exit status tells us which.
             chunk = b''
         if not chunk:
-            self._handle_line(self._pending)
+            if self._cancellable.is_cancelled():
+                stream.close(None)
+            else:
+                self._handle_line(self._pending)
             self._process.wait_async(None, self._on_exit)
             return
 
@@ -273,6 +285,11 @@ class CompressionJob:
 
         if not exited_ok or not pages_done or not output_size:
             kind = errors.classify(output)
+            if kind is ErrorKind.READ_FAILED and self._staged is None and os.access(self.source, os.R_OK):
+                # We can read it but gs can't: AppArmor on Ubuntu only lets gs
+                # open *.pdf under $HOME, /tmp, /mnt and /media, so network
+                # shares and extension-less files fail. Retry from a copy.
+                return self._stage_and_retry()
             if kind is ErrorKind.UNKNOWN and exited_ok and self._progress.total == 0:
                 kind = ErrorKind.NO_PAGES
             self._remove_output()
@@ -292,6 +309,25 @@ class CompressionJob:
             output_path=self.output, repaired=repaired,
         ))
 
+    def _stage_and_retry(self):
+        self._remove_output()
+        self._staged = os.path.join(self.workdir, f'{uuid.uuid4().hex}-input.pdf')
+        Gio.File.new_for_path(self.source).copy_async(
+            Gio.File.new_for_path(self._staged), Gio.FileCopyFlags.NONE,
+            GLib.PRIORITY_DEFAULT, self._cancellable, None, self._on_staged,
+        )
+
+    def _on_staged(self, source, res):
+        try:
+            source.copy_finish(res)
+        except GLib.Error as e:
+            if self._cancellable.is_cancelled():
+                return self._finish(Result(Status.CANCELLED, self._input_size))
+            return self._finish(Result(
+                Status.FAILED, self._input_size, error=ErrorKind.READ_FAILED, details=e.message,
+            ))
+        self._spawn(self._staged)
+
     def _remove_output(self):
         if self.output:
             try:
@@ -305,6 +341,11 @@ class CompressionJob:
         GLib.idle_add(lambda: self._finish(Result(Status.FAILED, size, error=kind, details=details)))
 
     def _finish(self, result):
+        if self._staged:
+            try:
+                os.unlink(self._staged)
+            except FileNotFoundError:
+                pass
         if not self._finished:
             self._finished = True
             self._on_finished(result)

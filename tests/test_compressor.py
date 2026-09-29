@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+import shutil
 import subprocess
+import time
+import uuid
 
 import pytest
 from gi.repository import GLib
@@ -149,3 +152,43 @@ def test_cancel(samples, tmp_path):
     result, _ = run(job, cancel_on_progress=True)
     assert result.status is Status.CANCELLED
     assert os.listdir(tmp_path) == []
+
+
+def test_cancel_is_prompt(samples, tmp_path):
+    """Cancel must not wait for gs to finish, even where AppArmor blocks
+    signals to gs (Ubuntu 25.10+): closing the pipe stops it instead."""
+    job = CompressionJob(samples['long'], get_level('balanced'), workdir=str(tmp_path))
+    loop = GLib.MainLoop()
+    timing = {}
+
+    def on_progress(done, total):
+        if done >= 1 and 'cancel' not in timing:
+            timing['cancel'] = time.monotonic()
+            job.cancel()
+
+    def on_finished(result):
+        timing['end'] = time.monotonic()
+        timing['result'] = result
+        loop.quit()
+
+    job.start(on_progress, on_finished)
+    GLib.timeout_add_seconds(120, loop.quit)
+    loop.run()
+
+    assert timing['result'].status is Status.CANCELLED
+    assert timing['end'] - timing['cancel'] < 2.0
+    assert os.listdir(tmp_path) == []
+
+
+@pytest.mark.skipif(not os.path.isdir('/dev/shm'), reason='no /dev/shm')
+def test_reads_files_gs_is_not_allowed_to(samples, tmp_path):
+    """Ubuntu's AppArmor profile keeps gs out of /dev/shm, /run/user (network
+    shares) and extension-less files; the job retries from a private copy."""
+    blocked = f'/dev/shm/compress-pdf-test-{uuid.uuid4().hex}'
+    shutil.copy(samples['image'], blocked)
+    try:
+        result, _ = run(CompressionJob(blocked, get_level('balanced'), workdir=str(tmp_path)))
+    finally:
+        os.unlink(blocked)
+    assert result.status is Status.COMPRESSED, result.details
+    assert os.listdir(tmp_path) == [os.path.basename(result.output_path)]

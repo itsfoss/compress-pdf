@@ -21,7 +21,7 @@ try:
     locale.textdomain('compress-pdf')
 except AttributeError:
     pass  # not available on every libc
-gettext.install('compress-pdf', localedir)
+gettext.install('compress-pdf', localedir, names=['ngettext'])
 
 if __name__ == '__main__':
     import gi

@@ -10,6 +10,14 @@ template $CompressPdfWindow: Adw.ApplicationWindow {
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
+      [start]
+      Button add_button {
+        icon-name: "list-add-symbolic";
+        tooltip-text: _("Add Files");
+        action-name: "win.add-files";
+        visible: false;
+      }
+
       [end]
       MenuButton {
         primary: true;
@@ -20,27 +28,102 @@ template $CompressPdfWindow: Adw.ApplicationWindow {
     }
 
     content: Adw.ToastOverlay toast_overlay {
-      child: Adw.StatusPage empty_page {
-        icon-name: "com.itsfoss.CompressPDF";
-        title: _("Compress PDF");
-        description: _("Drop PDF files here to make them smaller");
+      child: Overlay {
+        child: Stack stack {
+          transition-type: crossfade;
 
-        child: Button select_button {
-          label: _("_Select Files…");
-          use-underline: true;
-          halign: center;
+          StackPage {
+            name: "empty";
+
+            child: Adw.StatusPage {
+              icon-name: "com.itsfoss.CompressPDF";
+              title: _("Compress PDF");
+              description: _("Drop PDF files here to make them smaller");
+
+              child: Button {
+                label: _("_Select Files…");
+                use-underline: true;
+                halign: center;
+                action-name: "win.add-files";
+
+                styles [
+                  "pill",
+                  "suggested-action",
+                ]
+              };
+            };
+          }
+
+          StackPage {
+            name: "files";
+
+            child: Adw.PreferencesPage {
+              Adw.PreferencesGroup files_group {
+                title: _("Files");
+              }
+
+              Adw.PreferencesGroup level_group {
+                title: _("Compression");
+              }
+            };
+          }
+        };
+
+        [overlay]
+        Adw.StatusPage drop_overlay {
+          visible: false;
+          can-target: false;
+          icon-name: "folder-download-symbolic";
+          title: _("Drop to Add Files");
 
           styles [
-            "pill",
-            "suggested-action",
+            "drop-overlay",
           ]
-        };
+        }
       };
     };
+
+    [bottom]
+    Box bottom_bar {
+      visible: false;
+      halign: center;
+      margin-top: 12;
+      margin-bottom: 12;
+      spacing: 12;
+
+      Button compress_button {
+        label: _("_Compress");
+        use-underline: true;
+        action-name: "win.compress";
+
+        styles [
+          "pill",
+          "suggested-action",
+        ]
+      }
+
+      Button cancel_button {
+        label: _("_Cancel");
+        use-underline: true;
+        action-name: "win.cancel";
+        visible: false;
+
+        styles [
+          "pill",
+        ]
+      }
+    }
   };
 }
 
 menu primary_menu {
+  section {
+    item {
+      label: _("_Add Files…");
+      action: "win.add-files";
+    }
+  }
+
   section {
     item {
       label: _("_About Compress PDF");

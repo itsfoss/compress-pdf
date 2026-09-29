@@ -6,3 +6,4 @@ src/compress_pdf/window.py
 src/compress_pdf/ui/window.blp
 src/compress_pdf/levels.py
 src/compress_pdf/errors.py
+src/compress_pdf/file_row.py
