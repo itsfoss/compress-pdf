@@ -22,7 +22,7 @@ class CompressPdfApplication(Adw.Application):
         self.settings = Gio.Settings.new(application_id)
 
         self.create_action('about', self.on_about)
-        self.create_action('quit', lambda *args: self.quit(), ['<primary>q'])
+        self.create_action('quit', self.on_quit, ['<primary>q'])
         self.set_accels_for_action('window.close', ['<primary>w'])
 
     def do_startup(self):
@@ -42,6 +42,15 @@ class CompressPdfApplication(Adw.Application):
         if window is None:
             window = CompressPdfWindow(application=self)
         return window
+
+    def on_quit(self, *args):
+        # Go through the window's close handling, so a running compression
+        # is confirmed and stopped instead of leaving gs running on its own.
+        window = self.get_active_window()
+        if window:
+            window.close()
+        else:
+            self.quit()
 
     def on_about(self, *args):
         about = Adw.AboutDialog(
