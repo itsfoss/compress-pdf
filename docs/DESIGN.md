@@ -126,6 +126,24 @@ Common flags: `-dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite
 embedded. The numbers are starting points. They will be tuned against the test
 set with a benchmark script, which stays in the repo; the sample files do not.
 
+Validated in stage 2 (`tools/bench.py`, plus a synthetic 300 dpi scan with
+7 pt and 9 pt text rendered at each level): High Quality and Balanced look the
+same as the original, Small softens slightly with 7 pt text still readable,
+Smallest blurs 7 pt text and bands photos but stays legible.
+
+Also passed to Ghostscript: `-dAutoRotatePages=/None` (keep scanned pages the
+way they were), `-dPassThroughJPEGImages=false -dPassThroughJPXImages=false`.
+
+Safety rules found while testing Ghostscript 10.06:
+
+- A password-protected PDF makes Ghostscript **exit 0** and write an empty
+  PDF. Success is therefore "exit 0 **and** at least one page processed
+  **and** a non-empty output", never the exit code alone.
+- A non-PDF file is run as a PostScript program. The app checks for a
+  `%PDF-` header in the first 1 KiB and never hands anything else to
+  Ghostscript.
+- `%` in the output name is a page-number template; it is escaped.
+
 Progress comes from Ghostscript's own output: it prints
 `Processing pages 1 through N.` then `Page n` for each page. No extra pass is
 needed to count pages.
@@ -228,4 +246,7 @@ by two arrow bars in a single accent colour. Plus a monochrome symbolic variant.
 7. Test builds handed over
 
 v3.1: "Smaller than N MB" mode, password prompt for protected PDFs, optional
-grayscale conversion.
+grayscale conversion, and "shrink oversized pages to A4/Letter". Photos
+converted to PDF often sit on huge pages at 72 ppi, so dpi limits cannot
+touch them; fitting to A4 made one such sample 4× smaller (1449 KB → 351 KB
+for 3 pages at Balanced).

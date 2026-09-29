@@ -4,3 +4,5 @@ data/com.itsfoss.CompressPDF.gschema.xml
 src/compress_pdf/main.py
 src/compress_pdf/window.py
 src/compress_pdf/ui/window.blp
+src/compress_pdf/levels.py
+src/compress_pdf/errors.py
