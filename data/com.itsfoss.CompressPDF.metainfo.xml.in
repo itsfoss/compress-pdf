@@ -51,10 +51,35 @@
     <color type="primary" scheme_preference="dark">#613583</color>
   </branding>
 
+  <screenshots>
+    <screenshot type="default">
+      <caption>Pick your files and how small you need them</caption>
+      <image>https://raw.githubusercontent.com/itsfoss/compress-pdf/master/data/screenshots/2-files-light.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>See how much each file shrank, and open it straight away</caption>
+      <image>https://raw.githubusercontent.com/itsfoss/compress-pdf/master/data/screenshots/3-done-light.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Drop PDF files in to get started</caption>
+      <image>https://raw.githubusercontent.com/itsfoss/compress-pdf/master/data/screenshots/1-start-light.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Follows your dark style</caption>
+      <image>https://raw.githubusercontent.com/itsfoss/compress-pdf/master/data/screenshots/2-files-dark.png</image>
+    </screenshot>
+  </screenshots>
+
   <releases>
-    <release version="3.0.0" date="2026-10-15" type="development">
+    <release version="3.0.0" date="2026-09-29" type="stable">
       <description>
-        <p>A complete rewrite with a new interface, multiple file support and reliable packaging.</p>
+        <p>A complete rewrite with GTK 4 and libadwaita.</p>
+        <ul>
+          <li>Compress several files at once, with progress for each and a Cancel button</li>
+          <li>Four compression levels, tuned on real scanned documents</li>
+          <li>Never makes a file bigger and never overwrites your files</li>
+          <li>Clear messages for password-protected, damaged and non-PDF files</li>
+        </ul>
       </description>
     </release>
   </releases>

@@ -1,0 +1,9 @@
+compress-pdf (3.0.0) unstable; urgency=medium
+
+  * Complete rewrite with GTK 4 and libadwaita.
+  * Compress several files at once, with per-file progress and cancel.
+  * Four compression levels tuned on real scans.
+  * Never makes a file bigger and never overwrites existing files.
+  * Clear messages for password-protected, damaged and non-PDF files.
+
+ -- It's FOSS <chmod777ltd@gmail.com>  Tue, 29 Sep 2026 12:00:00 +0530

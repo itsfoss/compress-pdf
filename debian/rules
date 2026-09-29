@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+export PYBUILD_NAME=compress-pdf
+
+%:
+	dh $@ --buildsystem=meson --with python3
+
+# Keep the package readable by older dpkg (Debian 12, Ubuntu 22.04).
+override_dh_builddeb:
+	dh_builddeb -- -Zxz

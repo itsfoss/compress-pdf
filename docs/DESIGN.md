@@ -229,14 +229,15 @@ APIs.
   `--device=dri`. **No filesystem and no network access.** Files come in and go
   out only through the portal, which is possible because the user picks the
   save location every time.
-- Expected app size: about 5–10 MB download on top of the shared runtime.
+- Actual size (3.0.0): 12.3 MB bundle with Ghostscript 10.08.0 built with `--with-drivers=PS`
+  (keeps `pdfwrite`, drops printer drivers). Most of the size is Ghostscript's built-in fonts.
 
 **.deb**
 - `Architecture: all`, built with meson + debhelper + dh-python.
 - `Depends: python3 (>= 3.11), python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1
   (>= 1.5), ghostscript`.
 - Targets Ubuntu 24.04+, Mint 22+, Debian 13+, and derivatives.
-- Expected size: under 100 KB.
+- Actual size (3.0.0): 17.7 KB, 85 KB installed.
 
 **Metadata:** AppStream metainfo with screenshots, release notes, and content
 rating. Passes `appstreamcli validate` and `desktop-file-validate`.

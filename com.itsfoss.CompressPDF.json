@@ -1,0 +1,74 @@
+{
+    "id": "com.itsfoss.CompressPDF",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "49",
+    "sdk": "org.gnome.Sdk",
+    "command": "compress-pdf",
+    "finish-args": [
+        "--share=ipc",
+        "--socket=fallback-x11",
+        "--socket=wayland",
+        "--device=dri"
+    ],
+    "cleanup": [
+        "/include",
+        "/lib/pkgconfig",
+        "/share/man",
+        "/share/doc",
+        "*.a",
+        "*.la"
+    ],
+    "modules": [
+        {
+            "name": "ghostscript",
+            "config-opts": [
+                "--with-drivers=PS",
+                "--disable-cups",
+                "--disable-dbus",
+                "--disable-gtk",
+                "--without-x",
+                "--without-tesseract",
+                "--without-libpaper",
+                "--without-ijs"
+            ],
+            "cleanup": [
+                "/bin/dvipdf",
+                "/bin/eps2eps",
+                "/bin/gsbj",
+                "/bin/gsdj",
+                "/bin/gsdj500",
+                "/bin/gslj",
+                "/bin/gslp",
+                "/bin/gsnd",
+                "/bin/lprsetup.sh",
+                "/bin/pdf2dsc",
+                "/bin/pdf2ps",
+                "/bin/pf2afm",
+                "/bin/pfbtopfa",
+                "/bin/pphs",
+                "/bin/printafm",
+                "/bin/ps2*",
+                "/bin/unix-lpr.sh",
+                "/share/ghostscript/*/examples",
+                "/share/ghostscript/*/doc"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10080/ghostscript-10.08.0.tar.xz",
+                    "sha256": "c20492bc8ebb96c87fa2e52a0926e1cda8cde95d66145e018ac713fed5da38cf"
+                }
+            ]
+        },
+        {
+            "name": "compress-pdf",
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "dir",
+                    "path": "."
+                }
+            ]
+        }
+    ]
+}

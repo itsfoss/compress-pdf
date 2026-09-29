@@ -33,7 +33,7 @@ configure_file(
   configuration: conf,
   install: true,
   install_dir: get_option('bindir'),
-  install_mode: 'r-xr-xr-x',
+  install_mode: 'rwxr-xr-x',
 )
 
 install_subdir('compress_pdf', install_dir: pkgdatadir, exclude_directories: ['ui', '__pycache__'],

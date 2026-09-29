@@ -1,0 +1,23 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: compress-pdf
+Upstream-Contact: It's FOSS <https://itsfoss.com/>
+Source: https://github.com/itsfoss/compress-pdf
+
+Files: *
+Copyright: 2019-2026 It's FOSS
+License: GPL-3+
+
+Files: data/icons/*
+Copyright: 2026 It's FOSS
+License: CC-BY-SA-4.0
+ The full text is available at
+ https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+License: GPL-3+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 3 can be found in "/usr/share/common-licenses/GPL-3".
