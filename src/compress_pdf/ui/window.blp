@@ -59,11 +59,39 @@ template $CompressPdfWindow: Adw.ApplicationWindow {
 
             child: Adw.PreferencesPage {
               Adw.PreferencesGroup files_group {
-                title: _("Files");
+                title: _("To Compress");
+
+                Adw.ActionRow add_row {
+                  title: _("Add PDF Files…");
+                  activatable: true;
+                  action-name: "win.add-files";
+
+                  [prefix]
+                  Image {
+                    icon-name: "list-add-symbolic";
+                  }
+                }
               }
 
               Adw.PreferencesGroup level_group {
                 title: _("Compression");
+              }
+
+              Adw.PreferencesGroup done_group {
+                title: _("Done");
+                visible: false;
+
+                header-suffix: Button {
+                  label: _("C_lear");
+                  use-underline: true;
+                  valign: center;
+                  tooltip-text: _("Remove Finished Files From the List");
+                  clicked => $on_clear_done();
+
+                  styles [
+                    "flat",
+                  ]
+                };
               }
             };
           }

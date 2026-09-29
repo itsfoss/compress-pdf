@@ -85,6 +85,12 @@ Flow details:
 - **Never bigger:** each file is compressed to a temporary file first. If the
   result is not at least 5% smaller than the original, nothing is written and
   the row says "Already optimised". Otherwise it is copied to the destination.
+- **To Compress / Done:** only files in "To Compress" are ever compressed.
+  When a run ends, processed files (compressed, already optimised or failed)
+  move to a "Done" section with their result and an Open button; cancelled
+  or unstarted files stay queued. Adding a finished file again moves it back
+  to "To Compress", so redoing a file is always an explicit choice. "Clear"
+  empties the Done section.
 - **Cancel:** stops Ghostscript, deletes temp files, and keeps finished files.
 - **Settings remembered (GSettings):** last level and window size.
 - **Errors, shown in the file's row with a plain explanation:**

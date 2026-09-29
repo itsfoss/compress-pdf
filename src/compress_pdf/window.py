@@ -20,7 +20,9 @@ class CompressPdfWindow(Adw.ApplicationWindow):
     toast_overlay = Gtk.Template.Child()
     stack = Gtk.Template.Child()
     files_group = Gtk.Template.Child()
+    add_row = Gtk.Template.Child()
     level_group = Gtk.Template.Child()
+    done_group = Gtk.Template.Child()
     drop_overlay = Gtk.Template.Child()
     add_button = Gtk.Template.Child()
     bottom_bar = Gtk.Template.Child()
@@ -34,8 +36,12 @@ class CompressPdfWindow(Adw.ApplicationWindow):
         self.settings.bind('window-height', self, 'default-height', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('window-maximized', self, 'maximized', Gio.SettingsBindFlags.DEFAULT)
 
+        # Files waiting to be compressed, and files already processed.
+        # Only `rows` is ever handed to a batch.
         self.rows = []
+        self.done_rows = []
         self.batch = None
+        self._batch_rows = []
         self._close_after_cancel = False
         self._close_dialog = None
 
@@ -91,9 +97,12 @@ class CompressPdfWindow(Adw.ApplicationWindow):
 
     def _update_state(self):
         has_files = bool(self.rows)
-        self.stack.set_visible_child_name('files' if has_files else 'empty')
-        self.add_button.set_visible(has_files)
-        self.bottom_bar.set_visible(has_files)
+        has_any = has_files or bool(self.done_rows)
+        self.stack.set_visible_child_name('files' if has_any else 'empty')
+        self.add_button.set_visible(has_any)
+        self.bottom_bar.set_visible(has_any)
+        self.add_row.set_visible(not has_files and not self.running)
+        self.done_group.set_visible(bool(self.done_rows))
         self.compress_button.set_visible(not self.running)
         self.cancel_button.set_visible(self.running)
         self.lookup_action('add-files').set_enabled(not self.running)
@@ -126,30 +135,29 @@ class CompressPdfWindow(Adw.ApplicationWindow):
             self._toast(_('Wait for the current files to finish'))
             return
 
-        known = {row.path for row in self.rows}
+        pending = {row.path for row in self.rows}
+        done = {row.path: row for row in self.done_rows}
         rejected = []
-        added = 0
         for file in files:
             path = file.get_path()
             if not path or not os.path.isfile(path):
                 rejected.append(file.get_basename() or file.get_uri())
                 continue
-            if path in known:
+            if path in pending:
                 continue
             if not is_pdf(path):
                 rejected.append(file.get_basename())
                 continue
+            if path in done:
+                # Adding a finished file again is how you ask to redo it.
+                self.done_group.remove(done.pop(path))
+                self.done_rows = list(done.values())
             row = FileRow(file, path, os.path.getsize(path))
             row.connect('remove', self._on_row_remove)
             self.files_group.add(row)
             self.rows.append(row)
-            known.add(path)
-            added += 1
+            pending.add(path)
 
-        if added:
-            # A new list means old results no longer apply.
-            for row in self.rows:
-                row.reset()
         if len(rejected) == 1:
             self._toast(_('“{name}” is not a PDF file').format(name=rejected[0]))
         elif rejected:
@@ -158,6 +166,13 @@ class CompressPdfWindow(Adw.ApplicationWindow):
                 '{count} files are not PDFs and were skipped',
                 len(rejected),
             ).format(count=len(rejected)))
+        self._update_state()
+
+    @Gtk.Template.Callback()
+    def on_clear_done(self, *args):
+        for row in self.done_rows:
+            self.done_group.remove(row)
+        self.done_rows = []
         self._update_state()
 
     def _on_row_remove(self, row):
@@ -236,8 +251,9 @@ class CompressPdfWindow(Adw.ApplicationWindow):
             self._toast(_('That location can’t be used. Choose a folder on this computer.'))
             return
         level = get_level(self.settings.get_string('level'))
-        self.batch = Batch([row.path for row in self.rows], level, destination, single)
-        for row in self.rows:
+        self._batch_rows = list(self.rows)
+        self.batch = Batch([row.path for row in self._batch_rows], level, destination, single)
+        for row in self._batch_rows:
             row.set_waiting()
         self._update_state()
         self.batch.start(
@@ -246,15 +262,15 @@ class CompressPdfWindow(Adw.ApplicationWindow):
         )
 
     def _on_item_started(self, index):
-        self.rows[index].set_started()
+        self._batch_rows[index].set_started()
 
     def _on_item_progress(self, index, done, total):
-        self.rows[index].set_progress(done, total)
+        self._batch_rows[index].set_progress(done, total)
 
     def _on_item_finished(self, index, result, saved_path):
-        self.rows[index].set_result(result, saved_path)
+        self._batch_rows[index].set_result(result, saved_path)
         if result.status is Status.FAILED and result.details:
-            print(f'{self.rows[index].path}: {result.error.value}\n{result.details}', file=sys.stderr)
+            print(f'{self._batch_rows[index].path}: {result.error.value}\n{result.details}', file=sys.stderr)
 
     def _on_batch_finished(self, cancelled):
         results = self.batch.results
@@ -263,9 +279,16 @@ class CompressPdfWindow(Adw.ApplicationWindow):
             # Finished while we were asking whether to stop: nothing to ask any more.
             self._close_dialog.force_close()
             self._close_dialog = None
-        for row, result in zip(self.rows, results):
-            if result is None:
-                row.set_cancelled()
+        # Processed files move to "Done"; ones that never finished stay queued.
+        for row, result in zip(self._batch_rows, results):
+            if result is None or result.status is Status.CANCELLED:
+                row.reset()
+                continue
+            self.files_group.remove(row)
+            self.rows.remove(row)
+            self.done_group.add(row)
+            self.done_rows.append(row)
+        self._batch_rows = []
         self._update_state()
 
         if self._close_after_cancel:

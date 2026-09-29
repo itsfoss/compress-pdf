@@ -94,10 +94,6 @@ class FileRow(Adw.ActionRow):
             self.set_subtitle(errors.message(result.error))
             self._show_status('dialog-warning-symbolic', _('Failed'), 'error')
 
-    def set_cancelled(self):
-        self.set_subtitle(_('Cancelled'))
-        self._show_status('process-stop-symbolic', _('Cancelled'))
-
     def _show_status(self, icon_name, tooltip, style=None):
         self._status_icon.set_css_classes([style] if style else [])
         self._status_icon.set_from_icon_name(icon_name)
